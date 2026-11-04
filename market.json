@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-04",
+  "updatedAt": "2026-11-05",
   "plugins": [
     {
       "id": "com.lin.agent-bridge",
@@ -15,8 +15,8 @@
       "author": "",
       "homepage": "",
       "download": "agent-bridge.neon",
-      "sha256": "fe2fb8ffab29044090740a16e2f06cedd962f064c75f33ec5ad6780c2929d919",
-      "size": 13069
+      "sha256": "4903d865f09978eb799ec8620cf65eb91b5d5a4e2b202faefab5b0c79cb3a8c0",
+      "size": 13321
     },
     {
       "id": "com.lin.agent-claude",
@@ -32,8 +32,8 @@
       "author": "",
       "homepage": "",
       "download": "agent-claude.neon",
-      "sha256": "6cc6b228ef74bf4b7cf69b79f26fe7dd2b6e501f18017d08623321c1608d06dd",
-      "size": 5814
+      "sha256": "b9ad37a9133c8e94973785b6df6c7f02dc89fdb97d54a2ecfb5b83575dc87aa0",
+      "size": 6052
     },
     {
       "id": "com.lin.agent-codex",
@@ -50,8 +50,8 @@
       "author": "",
       "homepage": "",
       "download": "agent-codex.neon",
-      "sha256": "61e481287feddc290f675df4ef6a817dab9e954c8ea445eaa0a9aaca90dd1868",
-      "size": 6267
+      "sha256": "156cad61d797817e2225533c6943584d913a2d49b71ba3f41061133b363329b4",
+      "size": 6571
     },
     {
       "id": "com.lin.agent-cursor",
@@ -67,8 +67,8 @@
       "author": "",
       "homepage": "",
       "download": "agent-cursor.neon",
-      "sha256": "257cf49d4d89f0089d3e06e9730092809fb885394765be3391fdb3b15940d48f",
-      "size": 6836
+      "sha256": "adadedd904b3b636db47d401e4b055b8fcd7f70bb920916ec288bd19dd76fd43",
+      "size": 7081
     },
     {
       "id": "com.lin.agent-opencode",
@@ -84,8 +84,8 @@
       "author": "",
       "homepage": "",
       "download": "agent-opencode.neon",
-      "sha256": "fd01828ee8e554d0472ad8dd1b53f92e2bdf77cac213a11d2c5448f29abb7d23",
-      "size": 6090
+      "sha256": "8a4f4e69357577bdb0d679d363b51339c7c05dd0de492b8bad2bbd9d895c3a43",
+      "size": 6309
     },
     {
       "id": "com.lin.plan-hook",
@@ -100,8 +100,8 @@
       "author": "",
       "homepage": "",
       "download": "plan-hook.neon",
-      "sha256": "d34f1fcf5edad2dcb22b3768d2129c3438b00dce044ab1b8a0d1d003f3b6e5c1",
-      "size": 15908
+      "sha256": "efe452df5601d67f27e7554bb5ad0f2ba012565d03804f8835f0bbc2eb8596a0",
+      "size": 16113
     },
     {
       "id": "com.lin.surfaces",
@@ -115,8 +115,8 @@
       "author": "",
       "homepage": "",
       "download": "surfaces.neon",
-      "sha256": "a103e2619a0f35f7450c103c17042918fb762bd51a7aa7a44140f4a5d647f2d7",
-      "size": 6085
+      "sha256": "94f95fc8887dc5bc07e6f116410c5e29994b1141590cce440ee46eef75a30b4b",
+      "size": 6223
     },
     {
       "id": "com.lin.today",
@@ -130,8 +130,8 @@
       "author": "",
       "homepage": "",
       "download": "today.neon",
-      "sha256": "f0f147654c8ed4588cc2eae53a79a2876237151921ac473b45049220a677123f",
-      "size": 5168
+      "sha256": "fb46f11c810f0144dbe0d815c54484e8545e396f12866f1e57af8fea4fd37ddf",
+      "size": 5308
     }
   ],
   "signature": ""
