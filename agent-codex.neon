@@ -1,0 +1,42 @@
+{
+  "manifest": {
+    "id": "com.lin.agent-codex",
+    "name": "Codex CLI",
+    "version": "1.0.0",
+    "apiVersion": 2,
+    "description": "声明 Codex CLI 的出站执行 profile：exec --json 逐事件输出、-s read-only 只读沙箱、标准输入接 NUL。整轮 exec 尚未跑通，默认不启用。",
+    "main": "main.qml",
+    "permissions": [
+      "exec.agentProfiles"
+    ],
+    "contributes": {
+      "agentProfiles": [
+        {
+          "id": "codex",
+          "displayName": "Codex CLI",
+          "exe": "codex",
+          "args": [
+            "exec",
+            "--json"
+          ],
+          "promptMode": "arg",
+          "readonlyArgs": [
+            "-s",
+            "read-only"
+          ],
+          "output": "json",
+          "env": {
+            "NO_COLOR": "1"
+          },
+          "defaultTimeoutMin": 30,
+          "stdin": "null",
+          "enabled": false
+        }
+      ],
+      "commands": []
+    }
+  },
+  "files": {
+    "main.qml": "import QtQuick\nimport QtQuick.Controls\nimport QtQuick.Layouts\nimport NeonBoard\n\n// Agent provider 名片。这个 agent 是唯一一个「声明了但默认不启用」的 ——\n// 参数实测过，整轮 exec 没跑通，面板必须把这件事说清楚，\n// 否则用户会以为「这个插件坏了」而不是「这条 profile 还没验收」。\nRectangle {\n    id: root\n\n    color: \"transparent\"\n\n    readonly property bool granted: pluginHost ? pluginHost.hasPermission(\"exec.agentProfiles\") : false\n\n    readonly property string exeLine: \"codex exec --json <prompt>   （标准输入接 NUL）\"\n    readonly property string readonlyLine: \"codex exec --json -s read-only <prompt>\"\n\n    component KeyValue: RowLayout {\n        property string k: \"\"\n        property string v: \"\"\n        Layout.fillWidth: true\n        spacing: 8\n\n        Text {\n            text: k\n            color: Theme.muted\n            font.pixelSize: 10\n            Layout.preferredWidth: 64\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: v\n            color: Theme.text\n            font.pixelSize: 10\n            font.family: \"Consolas\"\n            wrapMode: Text.WrapAnywhere\n            selectByMouse: true\n        }\n    }\n\n    ColumnLayout {\n        anchors.fill: parent\n        anchors.margins: 2\n        spacing: 8\n\n        RowLayout {\n            Layout.fillWidth: true\n            spacing: 8\n\n            Text {\n                text: \"Codex CLI\"\n                color: Theme.text\n                font.pixelSize: 13\n                font.bold: true\n            }\n\n            Rectangle {\n                width: enabledLabel.implicitWidth + 12\n                height: 16\n                radius: 8\n                color: Qt.rgba(Theme.warning.r, Theme.warning.g, Theme.warning.b, 0.14)\n                border.width: 1\n                border.color: Theme.warning\n\n                Text {\n                    id: enabledLabel\n                    anchors.centerIn: parent\n                    text: \"默认未启用\"\n                    color: Theme.warning\n                    font.pixelSize: 9\n                }\n            }\n\n            Item { Layout.fillWidth: true }\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: \"为什么默认不启用：参数（exec --json / -s read-only）是实机看过的，\"\n                  + \"但整轮 exec 至今没能在超时内跑到 turn.completed —— 本机走本地代理，\"\n                  + \"config.toml 还把 provider 指到了自建网关。\"\n                  + \"按 docs/agent-profile.md 的规矩，未跑通整轮的 profile 不进可选列表。\"\n            color: Theme.warning\n            font.pixelSize: 9\n            wrapMode: Text.WordWrap\n        }\n\n        Rectangle {\n            Layout.fillWidth: true\n            height: 1\n            color: Theme.border\n        }\n\n        KeyValue { k: \"执行命令\"; v: root.exeLine }\n        KeyValue { k: \"只读命令\"; v: root.readonlyLine }\n        KeyValue { k: \"输出解析\"; v: \"json（事件流，末条回复要用 -o 另收，执行器未接管）\" }\n        KeyValue { k: \"超时\"; v: \"30 分钟（可在设置页逐条覆盖）\" }\n\n        Text {\n            Layout.fillWidth: true\n            text: \"stdin 必须接 NUL：不接的话 codex 会停在\"\n                  + \"「Reading additional input from stdin...」直到超时，症状像模型卡住。\"\n            color: Theme.muted\n            font.pixelSize: 9\n            wrapMode: Text.WordWrap\n        }\n\n        Rectangle {\n            Layout.fillWidth: true\n            height: 1\n            color: Theme.border\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: \"本机装法：Microsoft Store 版，CLI 本体不在 PATH，\"\n                  + \"藏在 %ProgramFiles%/WindowsApps/OpenAI.Codex_<版本>/app/resources/codex.exe。\"\n                  + \"上面声明的 exe 是裸命令 codex —— 要用就先把它加进 PATH，\"\n                  + \"或在设置页把这条改成绝对路径（版本号随升级变化）。\"\n            color: Theme.muted\n            font.pixelSize: 9\n            wrapMode: Text.WordWrap\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: \"启用条件：先手工跑通一次以 turn.completed 结束的 exec，\"\n                  + \"再到设置页把这条改成启用。没跑通就启用，失败会记成「超时」，\"\n                  + \"而归因线索只在这段说明里。\"\n            color: Theme.cyan\n            font.pixelSize: 9\n            wrapMode: Text.WordWrap\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: root.granted\n                  ? \"已获「声明 Agent」权限。\"\n                  : \"尚未获得「声明 Agent」权限：声明会被静默忽略，请到插件授权里开启。\"\n            color: root.granted ? Theme.muted : Theme.warning\n            font.pixelSize: 9\n            wrapMode: Text.WordWrap\n        }\n\n        Item { Layout.fillHeight: true }\n    }\n}\n"
+  }
+}

@@ -18,8 +18,9 @@ https://raw.githubusercontent.com/Reance195/neonboard-market/main/market.json
 
 ```json
 {
-  "version": 1,
-  "updatedAt": "2026-10-27",
+  "version": 2,
+  "updatedAt": "2026-11-04",
+  "signature": "",
   "plugins": [
     {
       "id": "com.example.timer",

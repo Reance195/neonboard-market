@@ -1,0 +1,35 @@
+{
+  "manifest": {
+    "id": "com.lin.surfaces",
+    "name": "多表面示例",
+    "version": "1.0.0",
+    "apiVersion": 2,
+    "description": "演示设置页、侧栏/底部/卡片槽位与命令注册",
+    "main": "main.qml",
+    "settings": "settings.qml",
+    "permissions": [],
+    "contributes": {
+      "commands": [
+        {
+          "id": "hello",
+          "title": "多表面示例：打招呼",
+          "category": "示例",
+          "description": "演示插件命令与快捷键注册",
+          "shortcut": "Ctrl+Shift+T"
+        }
+      ],
+      "slots": {
+        "sidebar": "sidebar.qml",
+        "bottom": "bottom.qml",
+        "card": "card.qml"
+      }
+    }
+  },
+  "files": {
+    "bottom.qml": "import QtQuick\nimport QtQuick.Layouts\n\nRectangle {\n    id: root\n    implicitHeight: 40\n    radius: 10\n    color: \"#0A1524\"\n    border.width: 1\n    border.color: Qt.rgba(0.75, 0.35, 0.95, 0.28)\n\n    property var host\n\n    RowLayout {\n        anchors.fill: parent\n        anchors.leftMargin: 12\n        anchors.rightMargin: 12\n        spacing: 8\n\n        Text {\n            text: \"◆\"\n            color: \"#C084FC\"\n            font.pixelSize: 11\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: \"底部面板槽位：插件可以在这里放状态条、播放控制或快捷入口。\"\n            color: \"#8FA8BF\"\n            font.pixelSize: 10\n            elide: Text.ElideRight\n        }\n\n        Text {\n            text: \"SURFACES\"\n            color: \"#C084FC\"\n            font.pixelSize: 9\n            font.letterSpacing: 1\n        }\n    }\n}\n",
+    "card.qml": "import QtQuick\n\nRectangle {\n    id: root\n    implicitHeight: 16\n    color: \"transparent\"\n\n    property var host\n    property string taskId: \"\"\n\n    Text {\n        anchors.fill: parent\n        verticalAlignment: Text.AlignVCenter\n        text: \"◆ 多表面示例 · 卡片槽位\"\n              + (root.taskId.length > 0 ? \" · \" + root.taskId.substring(0, 8) : \"\")\n        color: Qt.rgba(0.75, 0.52, 0.99, 0.55)\n        font.pixelSize: 8\n        elide: Text.ElideRight\n    }\n}\n",
+    "main.qml": "import QtQuick\nimport QtQuick.Layouts\n\nRectangle {\n    id: root\n    color: \"transparent\"\n\n    property string lastCommand: \"\"\n\n    Connections {\n        target: pluginHost\n        function onCommandInvoked(commandId) {\n            root.lastCommand = commandId\n        }\n    }\n\n    ColumnLayout {\n        anchors.fill: parent\n        anchors.margins: 12\n        spacing: 8\n\n        Text {\n            text: \"多表面示例\"\n            color: \"#E8F6FF\"\n            font.pixelSize: 14\n            font.bold: true\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: root.lastCommand.length > 0\n                  ? (\"已收到命令：\" + root.lastCommand)\n                  : \"按 Ctrl+Shift+T 触发插件命令；插件未运行时命令会自动排队并打开本面板。\"\n            color: \"#8FA8BF\"\n            font.pixelSize: 11\n            wrapMode: Text.WordWrap\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: \"本插件还贡献了设置页、侧栏、底部面板与任务卡槽位，可在设置面板与看板中查看。\"\n            color: \"#8FA8BF\"\n            font.pixelSize: 11\n            wrapMode: Text.WordWrap\n        }\n\n        Item { Layout.fillHeight: true }\n    }\n}\n",
+    "settings.qml": "import QtQuick\nimport QtQuick.Layouts\n\nColumnLayout {\n    id: root\n    width: parent ? parent.width : implicitWidth\n    spacing: 8\n\n    property var host\n    property bool highlight: true\n\n    RowLayout {\n        Layout.fillWidth: true\n        spacing: 8\n\n        Text {\n            Layout.fillWidth: true\n            text: \"强调显示\"\n            color: \"#E8F6FF\"\n            font.pixelSize: 11\n        }\n\n        Rectangle {\n            width: 72\n            height: 26\n            radius: 13\n            color: root.highlight ? Qt.rgba(0.13, 0.83, 0.93, 0.22) : \"#12202F\"\n            border.width: 1\n            border.color: root.highlight ? \"#22D3EE\" : \"#1E3245\"\n\n            Text {\n                anchors.centerIn: parent\n                text: root.highlight ? \"已开启\" : \"已关闭\"\n                color: root.highlight ? \"#22D3EE\" : \"#8FA8BF\"\n                font.pixelSize: 10\n            }\n\n            MouseArea {\n                anchors.fill: parent\n                onClicked: root.highlight = !root.highlight\n            }\n        }\n    }\n\n    Text {\n        Layout.fillWidth: true\n        text: \"插件标识：\" + (root.host && root.host.pluginId ? root.host.pluginId : \"(未注入)\")\n        color: \"#8FA8BF\"\n        font.pixelSize: 10\n    }\n\n    Text {\n        Layout.fillWidth: true\n        text: \"设置页由宿主设置面板聚合展示，根节点声明 host 属性即可拿到本插件的门面。\"\n        color: \"#8FA8BF\"\n        font.pixelSize: 10\n        wrapMode: Text.WordWrap\n    }\n}\n",
+    "sidebar.qml": "import QtQuick\nimport QtQuick.Layouts\n\nRectangle {\n    id: root\n    implicitHeight: content.implicitHeight + 16\n    radius: 10\n    color: \"#0A1524\"\n    border.width: 1\n    border.color: Qt.rgba(0.13, 0.83, 0.93, 0.28)\n\n    property var host\n\n    ColumnLayout {\n        id: content\n        anchors.left: parent.left\n        anchors.right: parent.right\n        anchors.top: parent.top\n        anchors.margins: 8\n        spacing: 2\n\n        Text {\n            text: \"多表面示例\"\n            color: \"#22D3EE\"\n            font.pixelSize: 10\n            font.bold: true\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: \"侧栏槽位 · \" + (root.host && root.host.pluginId ? root.host.pluginId : \"示例插件\")\n            color: \"#8FA8BF\"\n            font.pixelSize: 9\n            elide: Text.ElideRight\n        }\n    }\n}\n"
+  }
+}

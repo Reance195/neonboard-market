@@ -1,0 +1,40 @@
+{
+  "manifest": {
+    "id": "com.lin.agent-cursor",
+    "name": "Cursor Agent",
+    "version": "1.0.0",
+    "apiVersion": 2,
+    "description": "声明 Cursor Agent 的出站执行 profile：卡片派活时以 cursor-agent -p --output-format stream-json 拉起，只读走 --plan。",
+    "main": "main.qml",
+    "permissions": [
+      "exec.agentProfiles"
+    ],
+    "contributes": {
+      "agentProfiles": [
+        {
+          "id": "cursor-agent",
+          "displayName": "Cursor Agent",
+          "exe": "cursor-agent",
+          "args": [
+            "-p",
+            "--output-format",
+            "stream-json"
+          ],
+          "promptMode": "arg",
+          "readonlyArgs": [
+            "--plan"
+          ],
+          "output": "stream-json",
+          "env": {
+            "NO_COLOR": "1"
+          },
+          "defaultTimeoutMin": 30
+        }
+      ],
+      "commands": []
+    }
+  },
+  "files": {
+    "main.qml": "import QtQuick\nimport QtQuick.Controls\nimport QtQuick.Layouts\nimport NeonBoard\n\n// Agent provider 名片：内容全部在 plugin.json 的 contributes.agentProfiles 里。\n// 这个 agent 的特殊之处不在参数，而在「装法」—— exe 能不能拉起与 isAvailable 是两件事，\n// 面板必须把这一点讲明白，否则界面一片绿、派活却失败。\nRectangle {\n    id: root\n\n    color: \"transparent\"\n\n    readonly property bool granted: pluginHost ? pluginHost.hasPermission(\"exec.agentProfiles\") : false\n\n    readonly property string exeLine: \"cursor-agent -p --output-format stream-json <prompt>\"\n    readonly property string readonlyLine: \"cursor-agent -p --output-format stream-json --plan <prompt>\"\n    readonly property string adapterCmd: \"pwsh -File scripts/install-agent-adapters.ps1 -Install -Agents cursor\"\n\n    component KeyValue: RowLayout {\n        property string k: \"\"\n        property string v: \"\"\n        Layout.fillWidth: true\n        spacing: 8\n\n        Text {\n            text: k\n            color: Theme.muted\n            font.pixelSize: 10\n            Layout.preferredWidth: 64\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: v\n            color: Theme.text\n            font.pixelSize: 10\n            font.family: \"Consolas\"\n            wrapMode: Text.WrapAnywhere\n            selectByMouse: true\n        }\n    }\n\n    ColumnLayout {\n        anchors.fill: parent\n        anchors.margins: 2\n        spacing: 8\n\n        RowLayout {\n            Layout.fillWidth: true\n            spacing: 8\n\n            Text {\n                text: \"Cursor Agent\"\n                color: Theme.text\n                font.pixelSize: 13\n                font.bold: true\n            }\n\n            Rectangle {\n                width: grantedLabel.implicitWidth + 12\n                height: 16\n                radius: 8\n                color: root.granted ? Qt.rgba(Theme.success.r, Theme.success.g, Theme.success.b, 0.14)\n                                    : Qt.rgba(Theme.warning.r, Theme.warning.g, Theme.warning.b, 0.14)\n                border.width: 1\n                border.color: root.granted ? Theme.success : Theme.warning\n\n                Text {\n                    id: grantedLabel\n                    anchors.centerIn: parent\n                    text: root.granted ? \"已授权\" : \"待授权\"\n                    color: root.granted ? Theme.success : Theme.warning\n                    font.pixelSize: 9\n                }\n            }\n\n            Item { Layout.fillWidth: true }\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: root.granted\n                  ? \"已获「声明 Agent」权限：本插件声明的 profile 会出现在执行器与卡片派活的 agent 列表里，来源标为 plugin。\"\n                  : \"尚未获得「声明 Agent」权限：声明被静默忽略（权限决定拉起哪个进程，不是提示项）。请到插件授权里开启后再试。\"\n            color: root.granted ? Theme.muted : Theme.warning\n            font.pixelSize: 10\n            wrapMode: Text.WordWrap\n        }\n\n        Rectangle {\n            Layout.fillWidth: true\n            height: 1\n            color: Theme.border\n        }\n\n        KeyValue { k: \"执行命令\"; v: root.exeLine }\n        KeyValue { k: \"只读命令\"; v: root.readonlyLine }\n        KeyValue { k: \"输出解析\"; v: \"stream-json（逐事件流式写进运行日志）\" }\n        KeyValue { k: \"超时\"; v: \"30 分钟（可在设置页逐条覆盖）\" }\n\n        Rectangle {\n            Layout.fillWidth: true\n            height: 1\n            color: Theme.border\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: \"装法提醒：本机 PATH 上的 cursor-agent 是个 .cmd 包装器，\"\n                  + \"真身是 %LOCALAPPDATA%/cursor-agent/versions/<版本>/node.exe 加 index.js，\"\n                  + \"外层 .cmd 只负责转调 powershell 脚本。\"\n                  + \"执行器会先把裸命令名解析到 .cmd 再拉起；但 prompt 含换行或 %VAR% 时会直接拒绝启动\"\n                  + \"（经 cmd 转调送不到，只会送前半段），此时请把 exe 指向真身 node.exe 并把 index.js 放进 args。\"\n            color: Theme.muted\n            font.pixelSize: 9\n            wrapMode: Text.WordWrap\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: \"实测（R14-03）：裸命令名 cursor-agent 曾直接 FailedToStart「系统找不到指定的文件」\"\n                  + \"—— CreateProcess 只补 .exe，不认 PATH 上的 .cmd。执行器现在先解析成绝对路径\"\n                  + \"再拉起，本机 --version 实测退出码 0。边界：经 .cmd 转调的参数仍会被 cmd 二次解释，\"\n                  + \"prompt 里的 & | % 等字符会失真。\"\n            color: Theme.warning\n            font.pixelSize: 9\n            wrapMode: Text.WordWrap\n        }\n\n        Rectangle {\n            Layout.fillWidth: true\n            height: 1\n            color: Theme.border\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: \"入站方向（agent 的待办 → 看板卡片）由 ~/.cursor/hooks.json 的适配器负责：\"\n            color: Theme.muted\n            font.pixelSize: 10\n            wrapMode: Text.WordWrap\n        }\n\n        Text {\n            Layout.fillWidth: true\n            text: root.adapterCmd\n            color: Theme.cyan\n            font.pixelSize: 10\n            font.family: \"Consolas\"\n            wrapMode: Text.WrapAnywhere\n            selectByMouse: true\n        }\n\n        Item { Layout.fillHeight: true }\n    }\n}\n"
+  }
+}
